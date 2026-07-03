@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Back link -->
+            <div class="mb-4">
+                <a href="{% url 'booking_detail' booking.pk %}" class="text-decoration-none text-muted small fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Details
+                </a>
+            </div>
+
+            <!-- Card Wrap -->
+            <div class="card card-custom p-5" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff;">
+                <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px; font-size: 0.85rem;">Rental Operations</span>
+                <h2 class="fw-extrabold text-dark mt-1 mb-4">Process Vehicle Return</h2>
+                
+                <div class="alert alert-info border-0 rounded-3 mb-4" style="background: rgba(13, 148, 136, 0.05); color: #0d9488;">
+                    <i class="bi bi-info-circle-fill me-2"></i>You are recording a return transaction for <strong>{{ booking.car.brand }} {{ booking.car.name }}</strong>.
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <!-- Damage Reporting Text Area -->
+                    <div class="mb-4">
+                        <label for="damage_report" class="form-label fw-bold text-muted small"><i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Damage Inspection & Reporting</label>
+                        <textarea class="form-control" name="damage_report" id="damage_report" rows="4" placeholder="Describe any new scratches, dents, mechanical issues, or damages observed during inspection. (Leave blank if vehicle is in perfect condition.)" style="border-radius: 12px; border-color: rgba(0,0,0,0.1);"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-custom-primary py-3 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-2"></i>Confirm & Process Return
+                        </button>
+                        <a href="{% url 'booking_detail' booking.pk %}" class="btn btn-light py-3 rounded-pill text-muted fw-semibold">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

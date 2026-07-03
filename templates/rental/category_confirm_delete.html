@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Category - AutoDrive{% endblock %}
+
+{% block content %}
+<div class="auth-bg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Delete Confirmation Panel -->
+                <div class="card card-custom p-4 p-md-5 text-center fade-in-up border border-danger" style="border-width: 2px !important; box-shadow: 0 10px 40px rgba(220, 53, 69, 0.15) !important;">
+                    <div class="card-body">
+                        <i class="bi bi-exclamation-triangle-fill text-danger mb-4" style="font-size: 4rem; filter: drop-shadow(0 4px 10px rgba(220, 53, 69, 0.15));"></i>
+                        
+                        <h2 class="fw-bold text-dark mb-3">Delete Category?</h2>
+                        <p class="text-muted mb-4">
+                            Are you sure you want to permanently delete the category **{{ category.name }}**? Vehicles currently assigned to this category will not be deleted, but will become unassigned.
+                        </p>
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger py-3 fw-bold">
+                                    <i class="bi bi-trash-fill me-1"></i>Confirm Delete
+                                </button>
+                                <a href="{% url 'category_list' %}" class="btn btn-custom-secondary py-3">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

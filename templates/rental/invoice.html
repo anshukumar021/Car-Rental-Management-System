@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice #BK-{{ booking.id }} - AutoDrive{% endblock %}
+
+{% block content %}
+<div class="container my-4 fade-in-up">
+    <!-- Action buttons (hidden in print) -->
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <a href="{% url 'booking_detail' booking.id %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Back to Booking
+        </a>
+        <div class="d-flex gap-3">
+            <button onclick="window.print()" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-printer me-2"></i>Print Invoice
+            </button>
+            <button onclick="generatePDF()" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Invoice Card Container -->
+    <div class="card shadow border-0 rounded-4 overflow-hidden" id="invoice-card" style="background-color: #ffffff; color: #1e293b; max-width: 850px; margin: 0 auto;">
+        <!-- Header Bar -->
+        <div class="py-4 px-4 text-white d-flex justify-content-between align-items-center flex-wrap gap-3" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+            <div>
+                <h3 class="fw-extrabold mb-1 d-flex align-items-center text-white" style="font-size: 1.6rem;">
+                    <i class="bi bi-car-front-fill me-2 text-primary"></i>AutoDrive
+                </h3>
+                <p class="mb-0 text-muted small">Smart Car Rental & Telemetry System</p>
+            </div>
+            <div class="text-md-end text-white">
+                <h5 class="fw-bold mb-0 text-uppercase tracking-wider">Invoice / Receipt</h5>
+                <p class="mb-0 text-white-50 small">Invoice ID: #BK-{{ booking.id }}</p>
+                <p class="mb-0 text-white-50 small">Date: {{ booking.pickup_date }}</p>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Details section -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-sm-6">
+                    <h6 class="text-uppercase text-muted font-monospace mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Provider Details</h6>
+                    <div class="fw-bold text-dark fs-6">AutoDrive Rentals Ltd.</div>
+                    <div class="text-secondary small">128 Tech Park Sector</div>
+                    <div class="text-secondary small">Silicon Valley, CA 94025</div>
+                    <div class="text-secondary small">Email: support@autodrive.com</div>
+                    <div class="text-secondary small">Phone: +1 (555) 019-2834</div>
+                </div>
+                <div class="col-md-6 col-sm-6 text-md-end">
+                    <h6 class="text-uppercase text-muted font-monospace mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Customer Details</h6>
+                    <div class="fw-bold text-dark fs-6">{{ booking.user.name }}</div>
+                    <div class="text-secondary small">Email: {{ booking.user.email }}</div>
+                    <div class="text-secondary small">Phone: {{ booking.user.mobile }}</div>
+                    {% if booking.user.license_number %}
+                    <div class="text-secondary small">License: {{ booking.user.license_number }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Booking details summary -->
+            <div class="p-3 mb-4 rounded-3" style="background-color: #f8fafc; border: 1px solid #e2e8f0;">
+                <div class="row g-2 text-center text-md-start">
+                    <div class="col-6 col-md-3">
+                        <span class="text-muted d-block small" style="font-size: 0.75rem;">Booking ID</span>
+                        <strong class="text-dark">#BK-{{ booking.id }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="text-muted d-block small" style="font-size: 0.75rem;">Rental Duration</span>
+                        <strong class="text-dark">{{ booking.total_days }} Day{{ booking.total_days|pluralize }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <span class="text-muted d-block small" style="font-size: 0.75rem;">Pickup Date</span>
+                        <strong class="text-dark">{{ booking.pickup_date }}</strong>
+                    </div>
+                    <div class="col-6 col-md-3 text-md-end">
+                        <span class="text-muted d-block small" style="font-size: 0.75rem;">Return Date</span>
+                        <strong class="text-dark">{{ booking.return_date }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Table -->
+            <h6 class="fw-bold text-dark mb-2">Rental Breakdown</h6>
+            <div class="table-responsive mb-4">
+                <table class="table align-middle table-sm border">
+                    <thead>
+                        <tr class="table-dark">
+                            <th class="py-2 ps-3">Vehicle Details</th>
+                            <th class="py-2 text-center">Daily Rate</th>
+                            <th class="py-2 text-center">Rental Days</th>
+                            <th class="py-2 text-end pe-3">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-3 ps-3">
+                                <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ booking.car.brand }} {{ booking.car.model }}</div>
+                                <div class="text-secondary small" style="font-size: 0.8rem;">
+                                    {{ booking.car.year }} &bull; {{ booking.car.fuel_type }} &bull; {{ booking.car.transmission }} &bull; {{ booking.car.seating_capacity }} Seater
+                                </div>
+                            </td>
+                            <td class="py-3 text-center">₹{{ booking.car.rent_per_day }}</td>
+                            <td class="py-3 text-center">{{ booking.total_days }}</td>
+                            <td class="py-3 text-end pe-3 fw-bold text-dark">₹{{ booking.total_price }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total and Payment info -->
+            <div class="row g-3">
+                <div class="col-md-6 col-sm-6">
+                    <h6 class="text-uppercase text-muted font-monospace mb-2" style="font-size: 0.7rem; letter-spacing: 1px;">Payment Information</h6>
+                    <div class="mb-1 small">
+                        <span class="text-secondary me-2">Method:</span>
+                        <span class="badge bg-secondary-subtle text-secondary px-2 py-1 rounded-pill fw-semibold">{{ payment_method }}</span>
+                    </div>
+                    <div class="mb-1 small">
+                        <span class="text-secondary me-2">Transaction ID:</span>
+                        <code class="text-dark font-monospace">{{ transaction_id }}</code>
+                    </div>
+                    <div class="mb-1 small">
+                        <span class="text-secondary me-2">Payment Status:</span>
+                        {% if payment_status == 'Paid' %}
+                            <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill fw-semibold">Paid</span>
+                        {% elif payment_status == 'Refunded' %}
+                            <span class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill fw-semibold">Refunded</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-2 py-1 rounded-pill fw-semibold">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 text-md-end">
+                    <div class="d-inline-block text-start p-3 rounded-3" style="background-color: #f8fafc; border: 1px solid #e2e8f0; min-width: 250px;">
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="text-dark">₹{{ booking.total_price }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Taxes (0%):</span>
+                            <span class="text-dark">₹0.00</span>
+                        </div>
+                        <hr class="my-2" style="border-color: #cbd5e1;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">Total Paid:</span>
+                            <span class="fw-extrabold text-primary fs-5">₹{{ booking.total_price }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-color: #e2e8f0;">
+
+            <!-- Terms & Footer -->
+            <div class="text-center">
+                <p class="text-secondary small mb-1" style="font-size: 0.8rem;">Thank you for renting with AutoDrive! We hope you had a safe and comfortable journey.</p>
+                <p class="text-muted font-monospace mb-0" style="font-size: 0.6rem;">Generated by AutoDrive Telemetry Core Interface. Systems Nominal.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print-only CSS style to clean up the printed page -->
+<style>
+    @media print {
+        /* Hide navbar, footer, and action buttons */
+        nav, footer, .no-print, .btn {
+            display: none !important;
+        }
+        
+        /* Reset margins/paddings for print */
+        body {
+            background-color: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Optimize invoice card for printing */
+        #invoice-card {
+            box-shadow: none !important;
+            border: none !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Shrink paddings & margins for clean 1-page fit */
+        .card-body {
+            padding: 1rem !important;
+        }
+        .py-4 {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+        }
+        .mb-4, .mb-5 {
+            margin-bottom: 0.75rem !important;
+        }
+        .my-4, .my-5 {
+            margin-top: 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        /* Avoid breaks inside critical invoice elements */
+        #invoice-card, tr, .row, .col-md-6, .col-sm-6 {
+            page-break-inside: avoid;
+        }
+
+        /* Enforce colors in print */
+        .table-dark {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<!-- Load html2pdf.js via CDN for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    function generatePDF() {
+        const element = document.getElementById('invoice-card');
+        const opt = {
+            margin:       0.2,
+            filename:     'Invoice_BK_{{ booking.id }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+            pagebreak:    { mode: ['avoid-all'] }
+        };
+        
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+{% endblock %}

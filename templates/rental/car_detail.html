@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ car.brand }} {{ car.model }} Details - AutoDrive{% endblock %}
+
+{% block content %}
+<div class="container my-5 fade-in-up">
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a href="{% url 'car_list' %}" class="text-primary text-decoration-none fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i>Back to Fleet
+        </a>
+    </div>
+
+    <!-- Main Content Pod -->
+    <div class="card card-custom p-4 p-md-5">
+        <div class="row g-5">
+            <!-- Vehicle Image Panel -->
+            <div class="col-md-6">
+                <div class="rounded-4 overflow-hidden shadow-sm" style="background: #e2e8f0; height: 350px;">
+                    {% if car.image %}
+                        <img src="{{ car.image.url }}?v=3.0" alt="{{ car.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                            <i class="bi bi-car-front display-1"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Vehicle Info Panel -->
+            <div class="col-md-6 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Meta Brand & Status Badge -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 2px;">
+                            {{ car.brand }} &bull; {{ car.year }} Model
+                        </span>
+                        <div>
+                            {% if car.status == 'Available' %}
+                                <span class="badge bg-success border border-success-subtle text-white"><i class="bi bi-check-circle-fill me-1"></i>Available</span>
+                            {% elif car.status == 'Booked' %}
+                                <span class="badge bg-primary border border-primary-subtle text-white"><i class="bi bi-play-circle-fill me-1"></i>Booked</span>
+                            {% elif car.status == 'Maintenance' %}
+                                <span class="badge bg-warning border border-warning-subtle text-dark"><i class="bi bi-tools me-1"></i>Maintenance</span>
+                            {% else %}
+                                <span class="badge bg-danger border border-danger-subtle text-white"><i class="bi bi-slash-circle-fill me-1"></i>Inactive</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Title & Rent Rates -->
+                    <h2 class="fw-extrabold text-dark mb-3" style="font-size: 2.2rem; letter-spacing: -0.5px;">{{ car.name }}</h2>
+                    
+                    <div class="p-3 rounded-3 mb-4 d-inline-block" style="background: rgba(79, 70, 229, 0.04); border: 1px solid rgba(79, 70, 229, 0.08);">
+                        <span class="fs-2 fw-bold text-primary font-monospace">₹{{ car.rent_per_day }}</span>
+                        <span class="text-muted small"> / Rent Per Day</span>
+                    </div>
+
+                    <!-- Technical Specs Lists -->
+                    <h5 class="fw-bold text-dark mb-3">Vehicle Specifications</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-2 border border-light rounded-3 bg-light-subtle">
+                                <div class="text-muted small">Transmission</div>
+                                <div class="fw-semibold text-dark">{{ car.transmission }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-light rounded-3 bg-light-subtle">
+                                <div class="text-muted small">Fuel Type</div>
+                                <div class="fw-semibold text-dark">{{ car.fuel_type }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-light rounded-3 bg-light-subtle">
+                                <div class="text-muted small">Seating Capacity</div>
+                                <div class="fw-semibold text-dark">{{ car.seating_capacity }} Seats</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border border-light rounded-3 bg-light-subtle">
+                                <div class="text-muted small">Model Variant</div>
+                                <div class="fw-semibold text-dark text-capitalize">{{ car.model }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+                    <div class="card p-3 my-4 bg-light border-light-subtle rounded-3">
+                        <h6 class="fw-bold text-muted mb-3"><i class="bi bi-gear-fill me-2"></i>Availability Management (Staff)</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{% url 'update_car_status' car.pk 'Available' %}" class="btn btn-sm btn-outline-success {% if car.status == 'Available' %}active{% endif %}">
+                                <i class="bi bi-check-circle me-1"></i>Mark Available
+                            </a>
+                            <a href="{% url 'update_car_status' car.pk 'Booked' %}" class="btn btn-sm btn-outline-primary {% if car.status == 'Booked' %}active{% endif %}">
+                                <i class="bi bi-play-circle me-1"></i>Mark Booked
+                            </a>
+                            <a href="{% url 'update_car_status' car.pk 'Maintenance' %}" class="btn btn-sm btn-outline-warning {% if car.status == 'Maintenance' %}active{% endif %}">
+                                <i class="bi bi-tools me-1"></i>Mark Maintenance
+                            </a>
+                            <a href="{% url 'update_car_status' car.pk 'Inactive' %}" class="btn btn-sm btn-outline-danger {% if car.status == 'Inactive' %}active{% endif %}">
+                                <i class="bi bi-slash-circle me-1"></i>Mark Inactive
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Action Footer -->
+                <div class="mt-5 pt-4 border-top border-light d-flex gap-3">
+                    {% if user.is_authenticated %}
+                        {% if car.status == 'Available' %}
+                            <a href="{% url 'book_car' %}?car_id={{ car.id }}" class="btn btn-custom-primary flex-grow-1 py-3 text-center">
+                                <i class="bi bi-calendar-check me-2"></i>Book Vehicle Now
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary flex-grow-1 py-3" disabled>
+                                <i class="bi bi-slash-circle me-2"></i>Vehicle Currently Unavailable
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}?next={% url 'car_detail' car.pk %}" class="btn btn-custom-primary flex-grow-1 py-3 text-center">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login to Book
+                        </a>
+                    {% endif %}
+
+                    {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+                        <a href="{% url 'car_update' car.pk %}" class="btn btn-outline-secondary px-4 py-3" title="Edit details">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="{% url 'car_delete' car.pk %}" class="btn btn-outline-danger px-4 py-3" title="Delete Vehicle">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service History Section (Visible to staff/admin/superuser only) -->
+    {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+    <div class="card card-custom p-4 p-md-5 mt-4 shadow-sm">
+        <h4 class="fw-bold text-dark mb-4"><i class="bi bi-clock-history text-primary me-2"></i>Service & Maintenance History</h4>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Service Date</th>
+                        <th>Service Type</th>
+                        <th>Cost</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in car.maintenances.all|dictsortreversed:"service_date" %}
+                    <tr>
+                        <td class="font-monospace small">{{ record.service_date }}</td>
+                        <td class="fw-semibold text-dark">{{ record.service_type }}</td>
+                        <td class="font-monospace">₹{{ record.cost }}</td>
+                        <td>
+                            {% if record.status == 'Scheduled' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">Scheduled</span>
+                            {% elif record.status == 'In Progress' %}
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">In Progress</span>
+                            {% elif record.status == 'Completed' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Completed</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-secondary small">{{ record.notes|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-tools display-6 mb-2 d-block"></i>
+                            No maintenance logs registered for this vehicle.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

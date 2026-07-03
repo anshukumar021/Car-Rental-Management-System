@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Maintenance Record - AutoDrive Admin{% endblock %}
+
+{% block content %}
+<div class="container my-5 fade-in-up">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Breadcrumbs -->
+            <div class="mb-4">
+                <a href="{% url 'admin_maintenance' %}" class="text-decoration-none text-muted small fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Maintenance Directory
+                </a>
+            </div>
+
+            <!-- Edit Maintenance Card -->
+            <div class="card card-custom p-4 p-md-5 shadow">
+                <div class="mb-4 text-center border-bottom pb-3">
+                    <div class="text-uppercase font-monospace text-primary small mb-1" style="letter-spacing: 2px;">
+                        <i class="bi bi-pencil-square me-1"></i> Operations Telemetry update
+                    </div>
+                    <h3 class="fw-extrabold text-dark mb-0">Edit Maintenance</h3>
+                    <p class="text-muted small">Update cost, status, or notes for the vehicle maintenance session.</p>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3 mb-4">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0 small"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Vehicle</label>
+                            {{ form.car }}
+                            {% if form.car.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.car.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Service Date</label>
+                            {{ form.service_date }}
+                            {% if form.service_date.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.service_date.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Service Type</label>
+                            {{ form.service_type }}
+                            {% if form.service_type.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.service_type.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Service Cost (₹)</label>
+                            {{ form.cost }}
+                            {% if form.cost.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.cost.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Status</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.status.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="form-label text-secondary fw-semibold small">Notes / Observations</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">{% for error in form.notes.errors %}{{ error }}{% endfor %}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-4">
+                            <div class="d-flex gap-3 align-items-center justify-content-end">
+                                <a href="{% url 'admin_maintenance' %}" class="btn btn-custom-secondary px-4">Cancel</a>
+                                <button type="submit" class="btn btn-custom-primary px-5">
+                                    <i class="bi bi-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

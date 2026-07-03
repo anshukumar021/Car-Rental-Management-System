@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Back link -->
+            <div class="mb-4">
+                <a href="{% url 'booking_detail' booking.pk %}" class="text-decoration-none text-muted small fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Details
+                </a>
+            </div>
+
+            <!-- Card Wrap -->
+            <div class="card card-custom p-5" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff;">
+                <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px; font-size: 0.85rem;">Modify Booking</span>
+                <h2 class="fw-extrabold text-dark mt-1 mb-4">Edit Reservation Details</h2>
+                
+                <form method="POST" id="modifyForm">
+                    {% csrf_token %}
+                    
+                    <!-- Vehicle choice -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small"><i class="bi bi-car-front-fill me-1"></i>Selected Vehicle</label>
+                        {{ form.car }}
+                        {% if form.car.errors %}
+                            <div class="text-danger small mt-1">{{ form.car.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pickup & Return Dates -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-muted small"><i class="bi bi-calendar-event me-1"></i>Pickup Date</label>
+                            {{ form.pickup_date }}
+                            {% if form.pickup_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.pickup_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold text-muted small"><i class="bi bi-calendar-event me-1"></i>Return Date</label>
+                            {{ form.return_date }}
+                            {% if form.return_date.errors %}
+                                <div class="text-danger small mt-1">{{ form.return_date.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Estimated Summary Box -->
+                    <div class="card p-4 border-0 mb-4 rounded-4" style="background: rgba(79, 70, 229, 0.04); border: 1px solid rgba(79, 70, 229, 0.08);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Daily Rent Rate:</span>
+                            <span class="fw-bold text-dark" id="rateText">₹0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Computed Days:</span>
+                            <span class="fw-bold text-dark" id="daysText">0 Days</span>
+                        </div>
+                        <hr class="my-2" style="border-color: rgba(79, 70, 229, 0.15);">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-dark fw-bold">Estimated Total Cost:</span>
+                            <span class="fs-4 fw-extrabold text-primary font-monospace" id="totalText">₹0</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-custom-primary py-3 rounded-pill">
+                            <i class="bi bi-check-circle-fill me-2"></i>Save Modification
+                        </button>
+                        <a href="{% url 'booking_detail' booking.pk %}" class="btn btn-light py-3 rounded-pill text-muted fw-semibold">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Embedded Script to Compute Live Estimation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const carSelect = document.getElementById("id_car");
+        const pickupInput = document.getElementById("id_pickup_date");
+        const returnInput = document.getElementById("id_return_date");
+        
+        const rateText = document.getElementById("rateText");
+        const daysText = document.getElementById("daysText");
+        const totalText = document.getElementById("totalText");
+
+        // Map car IDs to daily rent rates
+        const carRates = {
+            {% for car in form.fields.car.queryset %}
+                "{{ car.id }}": {{ car.rent_per_day }},
+            {% endfor %}
+        };
+
+        function recalculate() {
+            const carId = carSelect.value;
+            const pickupVal = pickupInput.value;
+            const returnVal = returnInput.value;
+
+            if (!carId || !pickupVal || !returnVal) {
+                return;
+            }
+
+            const dailyRate = carRates[carId] || 0;
+            rateText.innerText = "₹" + dailyRate;
+
+            const date1 = new Date(pickupVal);
+            const date2 = new Date(returnVal);
+            
+            const diffTime = date2 - date1;
+            const diffDays = Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 1);
+
+            if (diffTime >= 0) {
+                daysText.innerText = diffDays + " Days";
+                totalText.innerText = "₹" + (dailyRate * diffDays);
+            } else {
+                daysText.innerText = "Invalid Dates";
+                totalText.innerText = "₹0";
+            }
+        }
+
+        carSelect.addEventListener("change", recalculate);
+        pickupInput.addEventListener("change", recalculate);
+        returnInput.addEventListener("change", recalculate);
+
+        // Run once on load
+        recalculate();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Back link -->
+            <div class="mb-4">
+                <a href="{% url 'booking_detail' booking.pk %}" class="text-decoration-none text-muted small fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Cancel & Return
+                </a>
+            </div>
+
+            <!-- Card Wrap -->
+            <div class="card card-custom p-5" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff;">
+                <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px; font-size: 0.85rem;">AutoDrive Checkout</span>
+                <h2 class="fw-extrabold text-dark mt-1 mb-4">Complete Payment</h2>
+                
+                <!-- Invoice Summary -->
+                <div class="p-3 bg-light rounded-3 mb-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small d-block">Booking ID</span>
+                        <strong class="text-dark">#BK-{{ booking.id }}</strong>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-muted small d-block">Amount Due</span>
+                        <strong class="fs-4 fw-extrabold text-primary font-monospace">₹{{ booking.total_price }}</strong>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small">Select Payment Method</label>
+                        
+                        <!-- Tabs Navigation -->
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="payment_method" id="method_card" value="Credit Card" checked>
+                                <label class="btn btn-outline-primary w-100 py-2.5 rounded-3 fw-semibold small" for="method_card">
+                                    <i class="bi bi-credit-card me-2"></i>Card (Credit/Debit)
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="payment_method" id="method_upi" value="UPI">
+                                <label class="btn btn-outline-primary w-100 py-2.5 rounded-3 fw-semibold small" for="method_upi">
+                                    <i class="bi bi-phone me-2"></i>UPI / QR Code
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Inputs Panel -->
+                    <div id="card_panel">
+                        <div class="mb-3">
+                            <label for="card_num" class="form-label text-muted small fw-medium">Card Number</label>
+                            <input type="text" class="form-control" id="card_num" placeholder="XXXX XXXX XXXX XXXX" style="border-radius: 10px;">
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label for="card_expiry" class="form-label text-muted small fw-medium">Expiry Date</label>
+                                <input type="text" class="form-control" id="card_expiry" placeholder="MM/YY" style="border-radius: 10px;">
+                            </div>
+                            <div class="col-6">
+                                <label for="card_cvv" class="form-label text-muted small fw-medium">CVV</label>
+                                <input type="password" class="form-control" id="card_cvv" placeholder="***" style="border-radius: 10px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="upi_panel" style="display: none;">
+                        <div class="mb-4">
+                            <label for="upi_addr" class="form-label text-muted small fw-medium">UPI Address (VPA)</label>
+                            <input type="text" class="form-control font-monospace" id="upi_addr" placeholder="username@upi" style="border-radius: 10px;">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-custom-primary py-3 rounded-pill w-100 fw-bold">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Pay ₹{{ booking.total_price }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cardRadio = document.getElementById('method_card');
+    const upiRadio = document.getElementById('method_upi');
+    const cardPanel = document.getElementById('card_panel');
+    const upiPanel = document.getElementById('upi_panel');
+
+    cardRadio.addEventListener('change', () => {
+        if(cardRadio.checked) {
+            cardPanel.style.display = 'block';
+            upiPanel.style.display = 'none';
+        }
+    });
+
+    upiRadio.addEventListener('change', () => {
+        if(upiRadio.checked) {
+            cardPanel.style.display = 'none';
+            upiPanel.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

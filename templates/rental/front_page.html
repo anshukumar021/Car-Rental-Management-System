@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AutoDrive - Premium Self-Drive Car Rentals India{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 fade-in-up position-relative">
+    <div class="hero-orb hero-orb-one" style="z-index: 1;"></div>
+    <div class="hero-orb hero-orb-two" style="z-index: 1;"></div>
+    
+    <!-- 1. Hero Text Panel (Full Width) -->
+    <div class="row mx-0 mb-2">
+        <div class="col-12 px-0">
+            <div class="hero-panel card-custom border-0 rounded-0 p-4 p-lg-5 position-relative overflow-hidden">
+                <div class="hero-glow"></div>
+                <div class="text-center py-4 z-2 position-relative">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2 mb-3">
+                        <i class="bi bi-patch-check-fill me-1 text-primary"></i>🇮🇳 India's Premier Self-Drive Network
+                    </span>
+                    <h1 class="fw-extrabold text-dark mb-3" style="font-size: 3.2rem; letter-spacing: -0.5px; line-height: 1.15;">
+                        Explore India on Your Own Terms. <br><span class="text-primary" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-teal) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Premium Fleet. Infinite Journeys.</span>
+                    </h1>
+                    <p class="lead text-muted mx-auto mb-4" style="font-size: 1.15rem; max-width: 850px;">
+                        Unlock the freedom of unlimited kilometers, zero security deposits, and doorstep delivery. Whether you are navigating the scenic curves of the Western Ghats, cruising the coastlines of Goa, or commuting through metropolitan hubs, choose from our handpicked collection of luxury SUVs, sedans, and smart EVs.
+                    </p>
+                    
+                    <div class="d-flex justify-content-center flex-wrap gap-4 mb-4 mt-3">
+                        <span class="text-dark fw-bold small"><i class="bi bi-shield-check text-success me-1 fs-5"></i> Zero Deposit</span>
+                        <span class="text-dark fw-bold small"><i class="bi bi-speedometer2 text-info me-1 fs-5"></i> Unlimited Kms</span>
+                        <span class="text-dark fw-bold small"><i class="bi bi-headset text-danger me-1 fs-5"></i> 24/7 Road Assistance</span>
+                    </div>
+
+                    <div class="d-flex justify-content-center flex-wrap gap-3">
+                        <a href="{% url 'car_list' %}" class="btn btn-custom-primary px-4 py-2.5">
+                            <i class="bi bi-car-front-fill me-2"></i>Browse Fleet
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary px-4 py-2.5">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-secondary px-4 py-2.5">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                            </a>
+                            <a href="{% url 'register' %}" class="btn btn-outline-primary px-4 py-2.5">
+                                <i class="bi bi-person-plus me-2"></i>Register
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Hero Car Slider Carousel (Full Width) -->
+    <div class="row mx-0 mb-5">
+        <div class="col-12 px-0">
+            <div class="hero-image-wrapper position-relative w-100">
+                <div class="hero-image-glow" style="width: 100%; height: 100%; top: 0; left: 0;"></div>
+                <div id="heroCarCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="3500">
+                    <div class="carousel-inner rounded-0 border-0 shadow-sm overflow-hidden">
+                        {% for car in featured_cars %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <div class="position-relative hero-carousel-height">
+                                    {% if car.image %}
+                                        <img src="{{ car.image.url }}" class="d-block w-100 h-100" style="object-fit: cover;" alt="{{ car.name }}">
+                                    {% else %}
+                                        <img src="{% static 'images/hero_car_indian.png' %}" class="d-block w-100 h-100" style="object-fit: cover;" alt="AutoDrive Premium Car">
+                                    {% endif %}
+                                    <div class="carousel-caption-custom position-absolute bottom-0 start-0 end-0 p-4 p-md-5 text-start" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15, 23, 42, 0.85) 100%);">
+                                        <div class="container">
+                                            <span class="badge bg-primary mb-2">Featured Selection</span>
+                                            <h3 class="fw-bold text-white mb-1" style="font-size: 2rem;">{{ car.name }}</h3>
+                                            <p class="text-white-50 small mb-3">{{ car.brand }} • {{ car.transmission }} • ₹{{ car.rent_per_day|floatformat:0 }}/day</p>
+                                            <a href="{% url 'car_detail' car.id %}" class="btn btn-custom-primary px-4 py-2">
+                                                <i class="bi bi-calendar-check me-1"></i>Rent This Car
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="carousel-item active">
+                                <div class="position-relative hero-carousel-height">
+                                    <img src="{% static 'images/hero_car_indian.png' %}" class="d-block w-100 h-100" style="object-fit: cover;" alt="AutoDrive Premium Car">
+                                    <div class="carousel-caption-custom position-absolute bottom-0 start-0 end-0 p-4 p-md-5 text-start" style="background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15, 23, 42, 0.8) 100%);">
+                                        <div class="container">
+                                            <span class="badge bg-primary mb-2">AutoDrive India</span>
+                                            <h3 class="fw-bold text-white mb-1" style="font-size: 2rem;">Premium Self-Drive SUV</h3>
+                                            <p class="text-white-50 small mb-3">Explore the Western Ghats & coastal highways.</p>
+                                            <a href="{% url 'car_list' %}" class="btn btn-custom-primary px-4 py-2">
+                                                <i class="bi bi-car-front-fill me-1"></i>Browse All Cars
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if featured_cars|length > 1 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroCarCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-3">
+    <!-- 3. Find a Car Search Widget (Full Width) -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="search-widget-card mt-0 shadow-lg border border-light-subtle">
+                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-search me-2 text-primary"></i>Find a Car</h5>
+                <form action="{% url 'car_list' %}" method="GET">
+                    <div class="row g-3">
+                        <div class="col-lg-3 col-md-6">
+                            <label for="widget-q">Search keyword</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                <input type="text" id="widget-q" name="q" class="form-control border-start-0 ps-0" placeholder="e.g. Swift, Petrol, Automatic">
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="widget-category">Category</label>
+                            <select id="widget-category" name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="widget-start-date">Pickup Date</label>
+                            <input type="date" id="widget-start-date" name="start_date" class="form-control">
+                        </div>
+                        <div class="col-lg-3 col-md-6">
+                            <label for="widget-end-date">Return Date</label>
+                            <input type="date" id="widget-end-date" name="end_date" class="form-control">
+                        </div>
+                        <div class="col-12 mt-3 text-end">
+                            <button type="submit" class="btn btn-custom-primary px-5 py-2.5">
+                                <i class="bi bi-search me-2"></i>Search Available Cars
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="stats-strip">
+                <div class="row g-4">
+                    <div class="col-6 col-md-3 stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Premium Fleet</div>
+                    </div>
+                    <div class="col-6 col-md-3 stat-item">
+                        <div class="stat-number">99.8%</div>
+                        <div class="stat-label">Safe Deliveries</div>
+                    </div>
+                    <div class="col-6 col-md-3 stat-item">
+                        <div class="stat-number">12k+</div>
+                        <div class="stat-label">Happy Journeys</div>
+                    </div>
+                    <div class="col-6 col-md-3 stat-item">
+                        <div class="stat-number">4.9★</div>
+                        <div class="stat-label">Google Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if categories %}
+    <div class="row mb-5 py-3">
+        <div class="col-12">
+            <h3 class="section-title">Browse by Category</h3>
+        </div>
+        <div class="row g-4 justify-content-center">
+            {% for category in categories %}
+                <div class="col-6 col-md-3">
+                    <a href="{% url 'car_list' %}?category={{ category.id }}" class="text-decoration-none text-dark">
+                        <div class="category-card-premium">
+                            <div class="category-icon-wrapper">
+                                {% if 'luxury' in category.name|lower %}
+                                    <i class="bi bi-gem"></i>
+                                {% elif 'electric' in category.name|lower or 'ev' in category.name|lower %}
+                                    <i class="bi bi-lightning-charge"></i>
+                                {% elif 'suv' in category.name|lower %}
+                                    <i class="bi bi-shield-shaded"></i>
+                                {% elif 'sedan' in category.name|lower %}
+                                    <i class="bi bi-car-front"></i>
+                                {% elif 'sports' in category.name|lower %}
+                                    <i class="bi bi-speedometer"></i>
+                                {% else %}
+                                    <i class="bi bi-car-front-fill"></i>
+                                {% endif %}
+                            </div>
+                            <h5 class="fw-bold mb-1">{{ category.name }}</h5>
+                            <p class="text-muted small mb-0">{{ category.cars.count }} Vehicles</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mb-5 py-3">
+        <div class="col-12">
+            <h3 class="section-title">Featured Vehicles</h3>
+        </div>
+        <div class="row g-4">
+            {% for car in featured_cars %}
+                <div class="col-lg-4 col-md-6 col-12">
+                    <div class="car-card-premium card-custom h-100">
+                        <div class="car-image-container">
+                            {% if car.image %}
+                                <img src="{{ car.image.url }}" alt="{{ car.name }}">
+                            {% else %}
+                                <i class="bi bi-car-front-fill car-image-fallback"></i>
+                            {% endif %}
+                            <span class="badge car-status-badge {% if car.status == 'Available' %}bg-success text-white{% else %}bg-secondary{% endif %}">
+                                {{ car.status }}
+                            </span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0">{{ car.name }}</h5>
+                                    <small class="text-muted fw-semibold">{{ car.brand }} • {{ car.year }}</small>
+                                </div>
+                                <div class="car-price-badge">
+                                    ₹{{ car.rent_per_day|floatformat:0 }}<span class="text-white-50 font-monospace small">/d</span>
+                                </div>
+                            </div>
+                            <div class="car-specs-grid">
+                                <div class="spec-item">
+                                    <i class="bi bi-people"></i>
+                                    {{ car.seating_capacity }} Seats
+                                </div>
+                                <div class="spec-item">
+                                    <i class="bi bi-gear-fill"></i>
+                                    {{ car.transmission }}
+                                </div>
+                                <div class="spec-item">
+                                    <i class="bi bi-fuel-pump"></i>
+                                    {{ car.fuel_type }}
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'car_detail' car.id %}" class="btn btn-custom-primary">
+                                    <i class="bi bi-calendar-check me-2"></i>Book Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5">
+                    <div class="text-muted">
+                        <i class="bi bi-car-front-fill fs-1 d-block mb-3 opacity-25"></i>
+                        No featured vehicles are available right now.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row mb-5 py-3">
+        <div class="col-12 text-center">
+            <h3 class="section-title">Rent in 3 Simple Steps</h3>
+        </div>
+        <div class="row g-4 mt-2 process-step-container">
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="process-step">
+                    <div class="process-number">1</div>
+                    <h5 class="fw-bold text-dark mt-2">Choose Your Ride</h5>
+                    <p class="text-muted mb-0 small">Select from our wide fleet of SUVs, luxury sedans, and electric vehicles.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="process-step">
+                    <div class="process-number">2</div>
+                    <h5 class="fw-bold text-dark mt-2">Set Dates & Book</h5>
+                    <p class="text-muted mb-0 small">Choose pickup/return dates and submit your booking in seconds.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12 text-center d-md-none d-lg-block">
+                <div class="process-step">
+                    <div class="process-number">3</div>
+                    <h5 class="fw-bold text-dark mt-2">Drive Away</h5>
+                    <p class="text-muted mb-0 small">Complete a quick document check, get your keys, and start your journey.</p>
+                </div>
+            </div>
+            <div class="col-md-12 d-none d-md-block d-lg-none">
+                <div class="process-step mx-auto" style="max-width: 350px;">
+                    <div class="process-number">3</div>
+                    <h5 class="fw-bold text-dark mt-2">Drive Away</h5>
+                    <p class="text-muted mb-0 small">Complete a quick document check, get your keys, and start your journey.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5 py-3">
+        <div class="col-12">
+            <h3 class="section-title">What Our Customers Say</h3>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="text-muted mb-4">"Rented a Mahindra Thar for a family road trip from Mumbai to Lonavala. The pickup was seamless, the car was spotless, and the performance in the Ghats was stellar. Absolutely recommended!"</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="testimonial-avatar">RM</div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Rahul Mehta</h6>
+                            <small class="text-muted">Mumbai Traveler</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <p class="text-muted mb-4">"Awesome experience renting a Baleno for a weekend trip to Coorg from Bangalore. The process is fully transparent with zero security deposits in my case. The digital license verification was instant!"</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="testimonial-avatar">PN</div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Priya Nair</h6>
+                            <small class="text-muted">Bangalore Professional</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 col-12">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                    </div>
+                    <p class="text-muted mb-4">"Rented a Swift for a quick weekend getaway from Delhi to Jaipur. The customer service team was helpful when I requested a return extension. Clean engine, smooth highway drive."</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="testimonial-avatar">AG</div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Amit Goel</h6>
+                            <small class="text-muted">Delhi NCR Resident</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

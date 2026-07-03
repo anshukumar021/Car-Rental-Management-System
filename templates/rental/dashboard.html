@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AutoDrive{% endblock %}
+
+{% block content %}
+<div class="container my-5 fade-in-up">
+    <!-- Welcome Header -->
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-7">
+            <div class="text-uppercase font-monospace text-success small mb-1" style="letter-spacing: 3px; font-size: 0.75rem;">
+                <i class="bi bi-cpu-fill me-1"></i> Core Interface Connection: Active
+            </div>
+            <h1 class="fw-extrabold text-dark mb-2" style="font-size: 2.5rem; letter-spacing: -1px;">
+                Welcome back, <span style="background: linear-gradient(135deg, #0d9488 0%, #4f46e5 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ name }}</span>
+            </h1>
+            <p class="text-muted mb-0">System synchronised. Accessing rental logs and operations telemetry.</p>
+        </div>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+            <div class="d-inline-flex align-items-center gap-3 p-3 card-custom" style="background: rgba(0,0,0,0.01); border-radius: 12px; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="text-start">
+                    <div class="text-uppercase font-monospace text-muted" style="font-size: 0.65rem; letter-spacing: 1px;">Access Role</div>
+                    <div class="fw-bold text-dark text-capitalize fs-6">{{ role }}</div>
+                </div>
+                <div class="vr bg-secondary" style="height: 30px; opacity: 0.2;"></div>
+                <div class="text-start">
+                    <div class="text-uppercase font-monospace text-muted" style="font-size: 0.65rem; letter-spacing: 1px;">System Load</div>
+                    <div class="fw-bold text-success font-monospace" style="font-size: 0.95rem;">0.04 MS / OK</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if is_staff %}
+    <!-- Admin Dashboard Metrics Cards (Module 15) -->
+    <div class="row g-4 mb-5">
+        <!-- 1. Total Vehicles -->
+        <div class="col-md">
+            <div class="card card-custom p-4 border-start border-primary border-4 h-100 shadow-sm" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <span class="text-uppercase font-monospace text-muted small d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Vehicles</span>
+                        <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_vehicles }}</h3>
+                        <span class="text-muted small">Registered in fleet</span>
+                    </div>
+                    <div class="bg-primary-subtle text-primary rounded-3 p-3">
+                        <i class="bi bi-car-front-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Total Customers -->
+        <div class="col-md">
+            <div class="card card-custom p-4 border-start border-info border-4 h-100 shadow-sm" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <span class="text-uppercase font-monospace text-muted small d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Customers</span>
+                        <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_customers }}</h3>
+                        <span class="text-muted small">Registered users</span>
+                    </div>
+                    <div class="bg-info-subtle text-info rounded-3 p-3">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Total Bookings -->
+        <div class="col-md">
+            <div class="card card-custom p-4 border-start border-success border-4 h-100 shadow-sm" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <span class="text-uppercase font-monospace text-muted small d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Total Bookings</span>
+                        <h3 class="fw-extrabold text-dark mb-0 font-monospace">{{ total_bookings }}</h3>
+                        <span class="text-muted small">Lifetime orders</span>
+                    </div>
+                    <div class="bg-success-subtle text-success rounded-3 p-3">
+                        <i class="bi bi-calendar-range-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Revenue -->
+        <div class="col-md">
+            <div class="card card-custom p-4 border-start border-danger border-4 h-100 shadow-sm" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <span class="text-uppercase font-monospace text-muted small d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Revenue</span>
+                        <h3 class="fw-extrabold text-dark mb-0 font-monospace">₹{{ revenue_sum }}</h3>
+                        <span class="text-muted small">Total paid sales</span>
+                    </div>
+                    <div class="bg-danger-subtle text-danger rounded-3 p-3">
+                        <i class="bi bi-cash-stack fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Pending Payments -->
+        <div class="col-md">
+            <div class="card card-custom p-4 border-start border-warning border-4 h-100 shadow-sm" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <span class="text-uppercase font-monospace text-muted small d-block mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">Pending Payments</span>
+                        <h3 class="fw-extrabold text-dark mb-0 font-monospace">₹{{ pending_payments_amount }}</h3>
+                        <span class="text-warning small"><i class="bi bi-clock-history me-1"></i>{{ pending_payments_count }} items</span>
+                    </div>
+                    <div class="bg-warning-subtle text-warning rounded-3 p-3">
+                        <i class="bi bi-credit-card-2-back-fill fs-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard Charts Row (Module 15) -->
+    <div class="row g-4 mb-5">
+        <!-- 1. Monthly Revenue Chart -->
+        <div class="col-lg-4">
+            <div class="card card-custom p-4 shadow-sm h-100" style="border-radius: 12px;">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-cash-stack text-success me-2"></i>Monthly Revenue ({{ current_year }})</h6>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- 2. Booking Trends Chart -->
+        <div class="col-lg-4">
+            <div class="card card-custom p-4 shadow-sm h-100" style="border-radius: 12px;">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-graph-up text-primary me-2"></i>Booking Trends ({{ current_year }})</h6>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="bookingTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <!-- 3. Vehicle Usage Chart -->
+        <div class="col-lg-4">
+            <div class="card card-custom p-4 shadow-sm h-100" style="border-radius: 12px;">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-pie-chart text-info me-2"></i>Vehicle Usage</h6>
+                <div style="height: 220px; position: relative;" class="d-flex align-items-center justify-content-center">
+                    <canvas id="vehicleUsageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Customer Dashboard Metrics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card card-custom p-4 border-start border-success border-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-uppercase font-monospace text-muted small mb-2" style="letter-spacing: 1px; font-size: 0.7rem;">Available Cars</div>
+                        <h2 class="fw-extrabold text-dark mb-0 font-monospace">{{ available_cars }}</h2>
+                        <span class="text-success small"><i class="bi bi-arrow-up-right me-1"></i>Fleet ready</span>
+                    </div>
+                    <div class="bg-success-subtle text-success rounded-3 p-3">
+                        <i class="bi bi-car-front fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-4 border-start border-primary border-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-uppercase font-monospace text-muted small mb-2" style="letter-spacing: 1px; font-size: 0.7rem;">Active Bookings</div>
+                        <h2 class="fw-extrabold text-dark mb-0 font-monospace">{{ active_bookings }}</h2>
+                        <span class="text-primary small"><i class="bi bi-arrow-right me-1"></i>Live contracts</span>
+                    </div>
+                    <div class="bg-primary-subtle text-primary rounded-3 p-3">
+                        <i class="bi bi-calendar-check fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-4 border-start border-info border-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-uppercase font-monospace text-muted small mb-2" style="letter-spacing: 1px; font-size: 0.7rem;">Completed Rentals</div>
+                        <h2 class="fw-extrabold text-dark mb-0 font-monospace">{{ completed_rentals }}</h2>
+                        <span class="text-info small"><i class="bi bi-check2-all me-1"></i>Logs archived</span>
+                    </div>
+                    <div class="bg-info-subtle text-info rounded-3 p-3">
+                        <i class="bi bi-clock-history fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card card-custom p-4 border-start border-warning border-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="text-uppercase font-monospace text-muted small mb-2" style="letter-spacing: 1px; font-size: 0.7rem;">Pending Requests</div>
+                        <h2 class="fw-extrabold text-dark mb-0 font-monospace">{{ pending_requests }}</h2>
+                        <span class="text-warning small"><i class="bi bi-hourglass-split fs-3"></i>Action required</span>
+                    </div>
+                    <div class="bg-warning-subtle text-warning rounded-3 p-3">
+                        <i class="bi bi-hourglass-split fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action & Table Section -->
+    <div class="row g-4">
+        <!-- Quick Actions Panel -->
+        <div class="col-md-4">
+            <div class="card card-custom p-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex align-items-center mb-4">
+                    <i class="bi bi-lightning-charge-fill text-warning me-2 fs-5"></i>
+                    <h5 class="fw-bold text-dark mb-0">Quick Actions</h5>
+                </div>
+                <div class="d-grid gap-3">
+                    <a href="{% url 'search_car' %}" class="btn btn-custom-primary py-3 text-start d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-search me-2"></i>Search Car</span>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+                    {% if not is_staff %}
+                    <a href="{% url 'book_car' %}" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-journal-plus me-2"></i>Book Car</span>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+                    <a href="{% url 'view_history' %}" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-list-columns-reverse me-2"></i>View History</span>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'car_create' %}" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-plus-circle me-2"></i>Add Vehicle</span>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+                    <a href="{% url 'admin_bookings' %}" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between">
+                        <span><i class="bi bi-calendar-range me-2"></i>Manage Bookings</span>
+                        <i class="bi bi-chevron-right small"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% if recent_bookings %}
+                        <a href="{% url 'download_invoice' recent_bookings.0.id %}" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between" style="border-color: rgba(217, 119, 6, 0.2); background-color: rgba(217, 119, 6, 0.05); color: #d97706 !important;">
+                            <span><i class="bi bi-file-earmark-arrow-down-fill me-2 text-warning"></i>Download Latest Invoice</span>
+                            <i class="bi bi-download small text-warning"></i>
+                        </a>
+                    {% else %}
+                        <a href="#" class="btn btn-custom-secondary py-3 text-start d-flex align-items-center justify-content-between disabled" style="opacity: 0.5; cursor: not-allowed;">
+                            <span><i class="bi bi-file-earmark-arrow-down me-2"></i>Download Invoice (No Data)</span>
+                            <i class="bi bi-slash-circle small"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed Table -->
+        <div class="col-md-8">
+            <div class="card card-custom p-4 h-100" style="border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-hdd-network-fill text-primary me-2 fs-5"></i>
+                        <h5 class="fw-bold text-dark mb-0">System Activity Feed</h5>
+                    </div>
+                    {% if is_staff %}
+                    <a href="{% url 'admin_bookings' %}" class="text-primary text-decoration-none fw-semibold small">View All Bookings</a>
+                    {% else %}
+                    <a href="{% url 'view_history' %}" class="text-primary text-decoration-none fw-semibold small">Query All Data</a>
+                    {% endif %}
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Session ID</th>
+                                <th scope="col">Model / Type</th>
+                                <th scope="col">Deploy Date</th>
+                                <th scope="col">Return Date</th>
+                                <th scope="col">Network Status</th>
+                                <th scope="col">Invoice Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                            <tr>
+                                <td><strong class="text-primary font-monospace">#BK-{{ booking.id|stringformat:"04d" }}</strong></td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ booking.car.brand }} {{ booking.car.model }}</div>
+                                    <div class="small text-muted text-capitalize">{{ booking.car.fuel_type }} &bull; {{ booking.car.transmission }}</div>
+                                </td>
+                                <td>{{ booking.pickup_date }}</td>
+                                <td>{{ booking.return_date }}</td>
+                                <td>
+                                    {% if booking.status == 'pending' %}
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2.5 py-1.5"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                    {% elif booking.status == 'confirmed' or booking.status == 'booked' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5"><i class="bi bi-check-circle-fill me-1"></i>Booked</span>
+                                    {% elif booking.status == 'picked_up' %}
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2.5 py-1.5"><i class="bi bi-key-fill me-1"></i>Picked Up</span>
+                                    {% elif booking.status == 'in_use' %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5"><i class="bi bi-car-front-fill me-1"></i>In Use</span>
+                                    {% elif booking.status == 'returned' %}
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2.5 py-1.5"><i class="bi bi-box-arrow-in-left me-1"></i>Returned</span>
+                                    {% elif booking.status == 'completed' %}
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1.5"><i class="bi bi-archive-fill me-1"></i>Completed</span>
+                                    {% else %}
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1.5"><i class="bi bi-x-circle-fill me-1"></i>Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'booking_detail' booking.id %}" class="btn btn-custom-secondary btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;">
+                                            <i class="bi bi-eye me-1"></i>Details
+                                        </a>
+                                        {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                            <a href="{% url 'modify_booking' booking.id %}" class="btn btn-outline-warning btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;">
+                                                <i class="bi bi-pencil-square me-1"></i>Modify
+                                            </a>
+                                        {% endif %}
+                                        <a href="{% url 'download_invoice' booking.id %}" class="btn btn-outline-primary btn-sm px-3 rounded-pill" style="font-size: 0.8rem; font-weight: 600;">
+                                            <i class="bi bi-download me-1"></i>Download
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="bi bi-folder-x display-6 mb-2"></i>
+                                    <p class="mb-0">No booking telemetry recorded yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_staff %}
+<!-- Load Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Monthly Revenue Chart (Line Chart)
+        const revenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: {{ revenue_labels|safe }},
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: {{ revenue_values|safe }},
+                    backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                    borderColor: '#0d9488',
+                    borderWidth: 2.5,
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: '#0d9488',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 2. Booking Trends Chart (Bar Chart)
+        const bookingCtx = document.getElementById('bookingTrendsChart').getContext('2d');
+        new Chart(bookingCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ booking_trend_labels|safe }},
+                datasets: [{
+                    label: 'Bookings Count',
+                    data: {{ booking_trend_values|safe }},
+                    backgroundColor: 'rgba(79, 70, 229, 0.75)',
+                    borderColor: '#4f46e5',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 },
+                        grid: { color: 'rgba(0, 0, 0, 0.04)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 3. Vehicle Usage Chart (Doughnut Chart)
+        const usageCtx = document.getElementById('vehicleUsageChart').getContext('2d');
+        new Chart(usageCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ vehicle_usage_labels|safe }},
+                datasets: [{
+                    data: {{ vehicle_usage_values|safe }},
+                    backgroundColor: [
+                        '#10b981', // Available (Green)
+                        '#3b82f6', // Booked (Blue)
+                        '#f59e0b', // Maintenance (Orange)
+                        '#6b7280'  // Inactive (Grey)
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: { size: 10 }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    });
+</script>
+{% endif %}
+
+{% endblock %}

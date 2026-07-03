@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manage your vehicle rentals and bookings efficiently with our Smart Car Rental System.">
+    <title>{% block title %}Smart Car Rental Management System{% endblock %}</title>
+    
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+ 
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4.0">
+    <!-- Unique Car Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234F46E5'><path d='M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z'/></svg>">
+</head>
+<body>
+
+ 
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="bi bi-car-front-fill me-2 fs-3 text-primary"></i>
+                <span>AutoDrive</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">
+                            <i class="bi bi-info-circle me-1"></i>About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'car_list' %}">
+                            <i class="bi bi-car-front me-1"></i>Cars
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link text-secondary pe-none">
+                                <i class="bi bi-person-circle me-1 text-primary"></i>
+                                Hello, <strong>{{ user.name }}</strong> 
+                                <span class="badge bg-secondary ms-1">{{ user.get_role_display }}</span>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'payment_history' %}">
+                                <i class="bi bi-wallet2 me-1"></i>Payment History
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">
+                                <i class="bi bi-person-gear me-1"></i>Profile
+                            </a>
+                        </li>
+                        {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-warning fw-semibold" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-shield-fill me-1"></i>Management
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="adminDropdown" style="border-radius: 12px; background: #ffffff;">
+                                    {% if user.role == 'admin' or user.is_superuser %}
+                                        <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_users' %}"><i class="bi bi-people text-primary me-2"></i>Manage Users</a></li>
+                                    {% endif %}
+                                    <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_bookings' %}"><i class="bi bi-calendar-range text-success me-2"></i>Manage Bookings</a></li>
+                                    <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_customers' %}"><i class="bi bi-people-fill text-warning me-2"></i>Manage Customers</a></li>
+                                    <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_maintenance' %}"><i class="bi bi-tools text-danger me-2"></i>Manage Maintenance</a></li>
+                                    {% if user.role == 'admin' or user.is_superuser %}
+                                        <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_payments' %}"><i class="bi bi-credit-card text-warning me-2"></i>Manage Payments</a></li>
+                                        <li><a class="dropdown-item fw-semibold text-dark py-2" href="{% url 'admin_reports' %}"><i class="bi bi-bar-chart-line text-info me-2"></i>System Reports</a></li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                        {% if user.is_staff or user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-semibold" href="/admin/" target="_blank">
+                                    <i class="bi bi-shield-lock-fill me-1"></i>Admin Panel
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'category_list' %}">
+                                <i class="bi bi-tags me-1"></i>Categories
+                            </a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-custom-primary btn-sm rounded-pill ms-2" href="{% url 'register' %}">
+                                <i class="bi bi-person-plus me-1"></i>Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow-1">
+        {% if messages %}
+            <div class="container mt-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2 text-success"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill me-2 text-info"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-0">&copy; 2026 AutoDrive Car Rental Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+ 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

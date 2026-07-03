@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back link -->
+            <div class="mb-4">
+                <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted small fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Main Booking Detail Card -->
+            <div class="card card-custom p-5" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-4 border-bottom border-light">
+                    <div>
+                        <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px;">Booking Detail</span>
+                        <h2 class="fw-extrabold text-dark mt-1 mb-0">Booking #BK-{{ booking.id }}</h2>
+                    </div>
+                    <div>
+                        {% if booking.status == 'pending' %}
+                            <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill"><i class="bi bi-clock-history me-1"></i>Pending Approval</span>
+                        {% elif booking.status == 'confirmed' or booking.status == 'booked' %}
+                            <span class="badge bg-primary text-white px-3 py-2 fs-6 rounded-pill"><i class="bi bi-bookmark-fill me-1"></i>Booked</span>
+                        {% elif booking.status == 'picked_up' %}
+                            <span class="badge bg-info text-white px-3 py-2 fs-6 rounded-pill"><i class="bi bi-key-fill me-1"></i>Picked Up</span>
+                        {% elif booking.status == 'in_use' %}
+                            <span class="badge bg-success text-white px-3 py-2 fs-6 rounded-pill"><i class="bi bi-car-front-fill me-1"></i>In Use</span>
+                        {% elif booking.status == 'returned' %}
+                            <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill"><i class="bi bi-box-arrow-in-left me-1"></i>Returned</span>
+                        {% elif booking.status == 'completed' %}
+                            <span class="badge bg-secondary text-white px-3 py-2 fs-6 rounded-pill"><i class="bi bi-flag-fill me-1"></i>Completed</span>
+                        {% else %}
+                            <span class="badge bg-danger text-white px-3 py-2 fs-6 rounded-pill"><i class="bi bi-x-circle-fill me-1"></i>Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Customer Details -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-4 h-100">
+                            <h6 class="fw-bold text-muted mb-3"><i class="bi bi-person-fill text-primary me-2"></i>Customer Info</h6>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Name</span>
+                                <strong class="text-dark">{{ booking.user.name }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Email</span>
+                                <span class="text-dark">{{ booking.user.email }}</span>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block">Mobile</span>
+                                <span class="text-dark">{{ booking.user.mobile }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Details -->
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-4 h-100">
+                            <h6 class="fw-bold text-muted mb-3"><i class="bi bi-car-front-fill text-primary me-2"></i>Vehicle Info</h6>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Vehicle</span>
+                                <strong class="text-dark">{{ booking.car.brand }} {{ booking.car.name }}</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Model & Transmission</span>
+                                <span class="text-dark">{{ booking.car.model }} &bull; {{ booking.car.transmission }}</span>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block">Fuel Type</span>
+                                <span class="text-dark text-capitalize">{{ booking.car.fuel_type }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step Progress Tracking -->
+                <div class="my-5">
+                    <h6 class="fw-bold text-muted mb-4"><i class="bi bi-bezier2 text-primary me-2"></i>Rental Status Timeline</h6>
+                    <div class="row text-center g-0 position-relative">
+                        <!-- Connecting Line -->
+                        <div class="position-absolute top-50 start-0 translate-middle-y w-100" style="height: 4px; background-color: #e2e8f0; z-index: 1;">
+                            <div style="height: 100%; width: {% if booking.status == 'booked' or booking.status == 'confirmed' %}20%{% elif booking.status == 'picked_up' %}45%{% elif booking.status == 'in_use' %}70%{% elif booking.status == 'returned' %}90%{% elif booking.status == 'completed' %}100%{% else %}0%{% endif %}; background-color: #4f46e5; transition: width 0.4s ease;"></div>
+                        </div>
+
+                        <!-- Step 1: Booked -->
+                        <div class="col position-relative" style="z-index: 2;">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fs-6 fw-bold mb-2 shadow-sm" style="width: 36px; height: 36px; background-color: {% if booking.status == 'booked' or booking.status == 'confirmed' or booking.status == 'picked_up' or booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}#4f46e5; color: white;{% else %}#e2e8f0; color: #64748b;{% endif %}">
+                                <i class="bi bi-journal-check"></i>
+                            </div>
+                            <div class="small fw-semibold {% if booking.status == 'booked' or booking.status == 'confirmed' or booking.status == 'picked_up' or booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}text-primary{% else %}text-muted{% endif %}">Booked</div>
+                        </div>
+
+                        <!-- Step 2: Picked Up -->
+                        <div class="col position-relative" style="z-index: 2;">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fs-6 fw-bold mb-2 shadow-sm" style="width: 36px; height: 36px; background-color: {% if booking.status == 'picked_up' or booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}#4f46e5; color: white;{% else %}#e2e8f0; color: #64748b;{% endif %}">
+                                <i class="bi bi-key-fill"></i>
+                            </div>
+                            <div class="small fw-semibold {% if booking.status == 'picked_up' or booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}text-primary{% else %}text-muted{% endif %}">Picked Up</div>
+                        </div>
+
+                        <!-- Step 3: In Use -->
+                        <div class="col position-relative" style="z-index: 2;">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fs-6 fw-bold mb-2 shadow-sm" style="width: 36px; height: 36px; background-color: {% if booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}#4f46e5; color: white;{% else %}#e2e8f0; color: #64748b;{% endif %}">
+                                <i class="bi bi-car-front-fill"></i>
+                            </div>
+                            <div class="small fw-semibold {% if booking.status == 'in_use' or booking.status == 'returned' or booking.status == 'completed' %}text-primary{% else %}text-muted{% endif %}">In Use</div>
+                        </div>
+
+                        <!-- Step 4: Returned -->
+                        <div class="col position-relative" style="z-index: 2;">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fs-6 fw-bold mb-2 shadow-sm" style="width: 36px; height: 36px; background-color: {% if booking.status == 'returned' or booking.status == 'completed' %}#4f46e5; color: white;{% else %}#e2e8f0; color: #64748b;{% endif %}">
+                                <i class="bi bi-box-arrow-in-left"></i>
+                            </div>
+                            <div class="small fw-semibold {% if booking.status == 'returned' or booking.status == 'completed' %}text-primary{% else %}text-muted{% endif %}">Returned</div>
+                        </div>
+
+                        <!-- Step 5: Complete -->
+                        <div class="col position-relative" style="z-index: 2;">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle fs-6 fw-bold mb-2 shadow-sm" style="width: 36px; height: 36px; background-color: {% if booking.status == 'completed' %}#4f46e5; color: white;{% else %}#e2e8f0; color: #64748b;{% endif %}">
+                                <i class="bi bi-shield-check"></i>
+                            </div>
+                            <div class="small fw-semibold {% if booking.status == 'completed' %}text-primary{% else %}text-muted{% endif %}">Completed</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if booking.pickup_time or booking.return_time or booking.damage_report %}
+                    <!-- Operations & Damage Logs -->
+                    <div class="card p-4 border border-warning-subtle rounded-4 mb-4 shadow-sm" style="background: rgba(217, 119, 6, 0.02);">
+                        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-shield-fill-exclamation text-warning me-2"></i>Operations Telemetry & Inspections</h6>
+                        
+                        {% if booking.pickup_time %}
+                            <div class="mb-2">
+                                <span class="text-muted small">Actual Pickup Time:</span>
+                                <strong class="text-dark">{{ booking.pickup_time }}</strong>
+                            </div>
+                        {% endif %}
+                        
+                        {% if booking.return_time %}
+                            <div class="mb-2">
+                                <span class="text-muted small">Actual Return Time:</span>
+                                <strong class="text-dark">{{ booking.return_time }}</strong>
+                            </div>
+                        {% endif %}
+
+                        {% if booking.damage_report %}
+                            <div class="mt-3 p-3 bg-white rounded-3 border border-warning-subtle">
+                                <span class="text-warning fw-bold small d-block mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Damage Logged:</span>
+                                <p class="text-danger small mb-0 fw-medium">{{ booking.damage_report }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Rental Period & Cost Details -->
+                <div class="card p-4 border border-light-subtle rounded-4 mb-5" style="background: rgba(79, 70, 229, 0.02);">
+                    <h6 class="fw-bold text-muted mb-4"><i class="bi bi-receipt-cutoff text-primary me-2"></i>Rental Period & Invoice Cost</h6>
+                    
+                    <div class="row text-center g-3 mb-4">
+                        <div class="col-4 border-end border-light">
+                            <span class="text-muted small d-block mb-1">Pickup Date</span>
+                            <strong class="text-dark fs-6">{{ booking.pickup_date|date:"Y-m-d" }}</strong>
+                        </div>
+                        <div class="col-4 border-end border-light">
+                            <span class="text-muted small d-block mb-1">Return Date</span>
+                            <strong class="text-dark fs-6">{{ booking.return_date|date:"Y-m-d" }}</strong>
+                        </div>
+                        <div class="col-4">
+                            <span class="text-muted small d-block mb-1">Total Days</span>
+                            <strong class="text-primary fs-5 font-monospace">{{ booking.total_days }} Days</strong>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
+                        <div>
+                            <span class="text-muted small">Daily Rate</span>
+                            <div class="fw-semibold text-dark">₹{{ booking.car.rent_per_day }} / day</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted small">Total Paid/Due Amount</span>
+                            <div class="fs-3 fw-extrabold text-primary font-monospace">₹{{ booking.total_price }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing & Payments Summary -->
+                <div class="card p-4 border border-light-subtle rounded-4 mb-5" style="background: rgba(13, 148, 136, 0.02);">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold text-muted mb-0"><i class="bi bi-credit-card text-teal me-2" style="color: #0d9488;"></i>Billing & Payment Status</h6>
+                        <div>
+                            {% if booking.payment.status == 'Paid' %}
+                                <span class="badge bg-success text-white px-2.5 py-1.5 rounded-pill"><i class="bi bi-check-circle-fill me-1"></i>Paid</span>
+                            {% elif booking.payment.status == 'Refunded' %}
+                                <span class="badge bg-danger text-white px-2.5 py-1.5 rounded-pill"><i class="bi bi-arrow-counterclockwise me-1"></i>Refunded</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark px-2.5 py-1.5 rounded-pill"><i class="bi bi-clock-fill me-1"></i>Pending Payment</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if booking.payment.status == 'Paid' %}
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <span class="text-muted small d-block">Payment Method</span>
+                                <strong class="text-dark">{{ booking.payment.payment_method }}</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <span class="text-muted small d-block">Transaction ID</span>
+                                <strong class="text-dark font-monospace small">{{ booking.payment.transaction_id }}</strong>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded-3 border">
+                            <span class="text-muted small fw-medium">Settle balance of <strong>₹{{ booking.total_price }}</strong></span>
+                            <a href="{% url 'collect_payment' booking.id %}" class="btn btn-sm btn-custom-primary rounded-pill px-4">
+                                <i class="bi bi-wallet2 me-1"></i>Pay Now
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <!-- Actions Footer -->
+                <div class="d-flex flex-wrap gap-3">
+                    {% if booking.status == 'pending' %}
+                        {% if user.role == 'admin' or user.role == 'staff' or user.is_superuser %}
+                            <a href="{% url 'approve_booking' booking.pk %}" class="btn btn-success flex-grow-1 py-3 text-center text-white fw-bold">
+                                <i class="bi bi-check-circle me-2"></i>Approve Booking (Mark Booked)
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if booking.status == 'pending' or booking.status == 'confirmed' or booking.status == 'booked' %}
+                        <a href="{% url 'modify_booking' booking.pk %}" class="btn btn-custom-primary flex-grow-1 py-3 text-center">
+                            <i class="bi bi-pencil-square me-2"></i>Modify Dates / Vehicle
+                        </a>
+                        <button type="button" class="btn btn-outline-danger flex-grow-1 py-3" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="bi bi-x-circle me-2"></i>Cancel Booking
+                        </button>
+                    {% endif %}
+
+                    <!-- Rental Lifecycle Operation buttons -->
+                    {% if booking.status == 'confirmed' or booking.status == 'booked' %}
+                        <a href="{% url 'pickup_booking' booking.pk %}" class="btn btn-success flex-grow-1 py-3 text-center text-white">
+                            <i class="bi bi-key-fill me-2"></i>Confirm Pickup
+                        </a>
+                    {% elif booking.status == 'picked_up' %}
+                        <a href="{% url 'pickup_booking' booking.pk %}" class="btn btn-success flex-grow-1 py-3 text-center text-white">
+                            <i class="bi bi-play-fill me-2"></i>Start Trip (In Use)
+                        </a>
+                    {% elif booking.status == 'in_use' %}
+                        <a href="{% url 'return_booking' booking.pk %}" class="btn btn-warning flex-grow-1 py-3 text-center text-dark fw-bold">
+                            <i class="bi bi-box-arrow-in-left me-2"></i>Process Return & Damage Report
+                        </a>
+                    {% elif booking.status == 'returned' %}
+                        {% if user.role == 'staff' or user.role == 'admin' or user.is_superuser %}
+                            <a href="{% url 'complete_booking' booking.pk %}" class="btn btn-info flex-grow-1 py-3 text-center text-white fw-bold">
+                                <i class="bi bi-shield-check me-2"></i>Inspect & Finalize Completion
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    <a href="{% url 'download_invoice' booking.pk %}" class="btn btn-outline-secondary px-4 py-3">
+                        <i class="bi bi-download me-2"></i>Download Receipt
+                    </a>
+                    
+                    <!-- Staff Manual Reminders -->
+                    {% if user.role == 'staff' or user.role == 'admin' or user.is_superuser %}
+                        <div class="d-flex flex-wrap gap-2 w-100 mt-3 pt-3 border-top border-light">
+                            <span class="text-muted small w-100 mb-1"><i class="bi bi-envelope-fill me-1 text-primary"></i>Staff Notification Reminders:</span>
+                            {% if booking.status == 'confirmed' or booking.status == 'booked' %}
+                                <a href="{% url 'send_rental_reminder' booking.pk %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2">
+                                    <i class="bi bi-bell-fill me-1 text-warning"></i>Send Rental Reminder
+                                </a>
+                            {% endif %}
+                            {% if booking.status == 'picked_up' or booking.status == 'in_use' %}
+                                <a href="{% url 'send_return_reminder' booking.pk %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2">
+                                    <i class="bi bi-clock-history me-1 text-info"></i>Send Return Reminder
+                                </a>
+                            {% endif %}
+                            {% if booking.payment.status == 'Pending' %}
+                                <a href="{% url 'send_payment_reminder' booking.pk %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2">
+                                    <i class="bi bi-credit-card-2-back-fill me-1 text-danger"></i>Send Payment Reminder
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Customer Review Section -->
+            {% if booking.status == 'returned' or booking.status == 'completed' %}
+                {% if user == booking.user %}
+                    <div class="card card-custom p-5 mt-4" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: #ffffff;">
+                        <h4 class="fw-bold text-dark mb-4">
+                            <i class="bi bi-star-fill text-warning me-2"></i>
+                            {% if booking.review %}Your Review for this Rental{% else %}Write a Review{% endif %}
+                        </h4>
+
+                        {% if booking.review %}
+                            <!-- Review Already Submitted -->
+                            <div class="p-4 bg-light rounded-4">
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <div class="text-warning">
+                                        {% if booking.review.rating == 5 %}
+                                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                                        {% elif booking.review.rating == 4 %}
+                                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                                        {% elif booking.review.rating == 3 %}
+                                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                        {% elif booking.review.rating == 2 %}
+                                            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                        {% else %}
+                                            <i class="bi bi-star-fill"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i><i class="bi bi-star"></i>
+                                        {% endif %}
+                                    </div>
+                                    <span class="text-muted small">&bull; {{ booking.review.created_at|date:"d M Y" }}</span>
+                                </div>
+                                <p class="text-dark mb-0 fs-6" style="font-style: italic;">"{{ booking.review.comment }}"</p>
+                            </div>
+                        {% else %}
+                            <!-- Review Submission Form -->
+                            <form action="{% url 'submit_review' booking.id %}" method="POST">
+                                {% csrf_token %}
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark mb-2">Rating</label>
+                                    <div class="d-flex gap-3">
+                                        {% for i in "12345" %}
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="rating" id="inlineRadio{{ i }}" value="{{ i }}" required {% if i == "5" %}checked{% endif %}>
+                                                <label class="form-check-label text-dark fw-bold" for="inlineRadio{{ i }}">{{ i }} <i class="bi bi-star-fill text-warning"></i></label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="reviewComment" class="form-label fw-bold text-dark mb-2">Your Feedback</label>
+                                    <textarea class="form-control rounded-3 p-3" id="reviewComment" name="comment" rows="4" placeholder="Share your experience with this vehicle (cleanliness, performance, etc.)..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-custom-primary px-4 py-2.5 rounded-pill fw-bold">
+                                    <i class="bi bi-send-fill me-2"></i>Submit Review
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Cancellation Modal Confirmation -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="cancelModalLabel">Cancel Booking Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                Are you absolutely sure you want to cancel booking <strong>#BK-{{ booking.id }}</strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Keep Booking</button>
+                <a href="{% url 'cancel_booking' booking.pk %}" class="btn btn-danger rounded-pill px-4">Yes, Cancel Booking</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

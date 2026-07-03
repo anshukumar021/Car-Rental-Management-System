@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    <!-- Back to Dashboard -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted small fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px; font-size: 0.85rem;">Financial Logs</span>
+            <h2 class="fw-extrabold text-dark mt-1">Manage Payments</h2>
+        </div>
+        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-semibold">{{ payments|length }} Payments Audited</span>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: #ffffff;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light" style="background: #f8fafc; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+                        <th class="ps-4">Transaction ID</th>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Modify & Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                        <tr>
+                            <td class="ps-4 py-3.5">
+                                {% if p.transaction_id %}
+                                    <span class="font-monospace text-dark fw-bold small">{{ p.transaction_id }}</span>
+                                {% else %}
+                                    <span class="text-muted small italic">Not Seeded</span>
+                                {% endif %}
+                                <div class="text-muted small" style="font-size: 0.75rem;">{{ p.payment_date|date:"Y-m-d H:i" }}</div>
+                            </td>
+                            <td>
+                                <a href="{% url 'booking_detail' p.booking.id %}" class="font-monospace text-primary fw-bold text-decoration-none">
+                                    #BK-{{ p.booking.id }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ p.booking.user.name }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-extrabold text-dark font-monospace">₹{{ p.amount }}</div>
+                            </td>
+                            <td>{{ p.payment_method }}</td>
+                            <td>
+                                {% if p.status == 'Paid' %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5"><i class="bi bi-check-circle-fill me-1"></i>Paid</span>
+                                {% elif p.status == 'Refunded' %}
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1.5"><i class="bi bi-arrow-counterclockwise me-1"></i>Refunded</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2.5 py-1.5"><i class="bi bi-clock-fill me-1"></i>Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                <form method="POST" class="d-inline-flex gap-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="payment_id" value="{{ p.id }}">
+                                    <input type="text" name="transaction_id" placeholder="TXN ID" value="{{ p.transaction_id|default:'' }}" class="form-control form-control-sm font-monospace" style="width: 130px; border-radius: 8px; font-size: 0.75rem;">
+                                    <select class="form-select form-select-sm" name="status" style="width: 120px; border-radius: 8px;">
+                                        <option value="Pending" {% if p.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                        <option value="Paid" {% if p.status == 'Paid' %}selected{% endif %}>Paid</option>
+                                        <option value="Refunded" {% if p.status == 'Refunded' %}selected{% endif %}>Refunded</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-custom-primary rounded-3 px-3">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-credit-card-2-front display-4 d-block mb-3"></i>
+                                No payment logs recorded.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

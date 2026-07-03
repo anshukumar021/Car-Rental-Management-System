@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 fade-in-up">
+    <!-- Back Navigation -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard' %}" class="text-decoration-none text-muted small fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Header Section -->
+    <div class="mb-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <span class="text-uppercase font-monospace text-primary fw-bold" style="letter-spacing: 1.5px; font-size: 0.85rem;">System Analytics</span>
+            <h2 class="fw-extrabold text-dark mt-1">Management Reports Dashboard</h2>
+            <p class="text-muted mb-0">Overview of vehicle metrics, booking counts, and revenue telemetry.</p>
+        </div>
+        <div class="p-3 bg-light rounded-4 border-light d-flex align-items-center shadow-sm">
+            <div class="me-3 bg-primary-subtle text-primary p-2.5 rounded-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                <i class="bi bi-percent fs-4"></i>
+            </div>
+            <div>
+                <span class="text-uppercase font-monospace text-muted small d-block" style="font-size: 0.7rem; letter-spacing: 0.5px;">Fleet Utilization</span>
+                <span class="fw-extrabold text-dark font-monospace h5 mb-0">{{ utilization_rate }}%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Section Grid -->
+    <div class="row g-4 mb-5">
+        <!-- 1. Vehicle Report Card -->
+        <div class="col-md-4">
+            <div class="card card-custom p-4 shadow-sm h-100 border-top border-primary border-4" style="border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-car-front-fill text-primary me-2"></i>Vehicle Report</h5>
+                    <span class="badge bg-primary-subtle text-primary font-monospace rounded-pill px-2.5 py-1">Active Fleet</span>
+                </div>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Total Vehicles</span>
+                        <span class="fw-extrabold text-dark font-monospace fs-5">{{ total_vehicles }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Available Vehicles</span>
+                        <span class="badge bg-success-subtle text-success font-monospace px-3 py-1.5 rounded-pill fw-bold">{{ available_vehicles }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-semibold text-secondary">Booked Vehicles</span>
+                        <span class="badge bg-primary-subtle text-primary font-monospace px-3 py-1.5 rounded-pill fw-bold">{{ booked_vehicles }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Booking Report Card -->
+        <div class="col-md-4">
+            <div class="card card-custom p-4 shadow-sm h-100 border-top border-warning border-4" style="border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-calendar-check-fill text-warning me-2"></i>Booking Report</h5>
+                    <span class="badge bg-warning-subtle text-warning font-monospace rounded-pill px-2.5 py-1">Reservations</span>
+                </div>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Daily Bookings</span>
+                        <span class="fw-extrabold text-dark font-monospace fs-5">{{ daily_bookings }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Monthly Bookings</span>
+                        <span class="fw-extrabold text-dark font-monospace fs-5">{{ monthly_bookings }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-semibold text-secondary">Cancelled Bookings</span>
+                        <span class="badge bg-danger-subtle text-danger font-monospace px-3 py-1.5 rounded-pill fw-bold">{{ cancelled_bookings }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Revenue Report Card -->
+        <div class="col-md-4">
+            <div class="card card-custom p-4 shadow-sm h-100 border-top border-success border-4" style="border-radius: 12px;">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cash-stack text-success me-2"></i>Revenue Report</h5>
+                    <span class="badge bg-success-subtle text-success font-monospace rounded-pill px-2.5 py-1">Earnings</span>
+                </div>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Daily Revenue</span>
+                        <span class="fw-extrabold text-dark font-monospace fs-5">₹{{ daily_revenue }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                        <span class="fw-semibold text-secondary">Monthly Revenue</span>
+                        <span class="fw-extrabold text-success font-monospace fs-5">₹{{ monthly_revenue }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-semibold text-secondary">Yearly Revenue</span>
+                        <span class="fw-extrabold text-dark font-monospace fs-5">₹{{ yearly_revenue }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Fleet Analytics -->
+    <div class="row g-4">
+        <!-- Most Rented Vehicles -->
+        <div class="col-12">
+            <div class="card card-custom p-4 shadow-sm border-0" style="border-radius: 12px;">
+                <h5 class="fw-bold text-dark mb-4"><i class="bi bi-fire text-danger me-2"></i>Most Rented Vehicles</h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead>
+                            <tr class="text-muted small border-bottom" style="font-weight: 600;">
+                                <th>Vehicle Name</th>
+                                <th>Category</th>
+                                <th class="text-end">Rents Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for car in popular_cars %}
+                                <tr>
+                                    <td class="py-3">
+                                        <strong class="text-dark">{{ car.brand }} {{ car.name }}</strong>
+                                    </td>
+                                    <td>{{ car.category.name }}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-danger-subtle text-danger font-monospace px-3 py-1.5 rounded-pill fw-bold">{{ car.num_bookings }} times</span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-muted">No rental counts logged.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

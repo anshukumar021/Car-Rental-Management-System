@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block title %}Book a Vehicle - AutoDrive{% endblock %}
+
+{% block content %}
+<div class="container my-5 fade-in-up">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="fw-extrabold text-dark mb-1" style="font-size: 2.2rem; letter-spacing: -0.5px;">Book a Vehicle</h1>
+            <p class="text-muted">Enter your rental dates to finalize booking telemetry.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Car Specifications / Selection Summary -->
+        <div class="col-md-5">
+            <div class="card card-custom h-100 p-4">
+                <h4 class="fw-bold text-dark mb-4">Vehicle Details</h4>
+                
+                {% if preselected_car %}
+                    <div style="height: 220px; background: #e2e8f0; overflow: hidden; border-radius: 12px; margin-bottom: 20px;">
+                        {% if preselected_car.image %}
+                            <img src="{{ preselected_car.image.url }}?v=3.0" alt="{{ preselected_car.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                <i class="bi bi-car-front display-3"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-uppercase font-monospace text-primary small mb-1">{{ preselected_car.brand }}</div>
+                    <h3 class="fw-bold text-dark mb-3">{{ preselected_car.name }}</h3>
+                    
+                    <div class="mb-4">
+                        <span class="fs-3 fw-bold text-dark">₹{{ preselected_car.rent_per_day }}</span>
+                        <span class="text-muted">/ day</span>
+                    </div>
+
+                    <!-- Mini Specs Grid -->
+                    <div class="row g-3 mb-4" style="font-weight: 500;">
+                        <div class="col-6 text-muted">
+                            <i class="bi bi-fuel-pump-fill me-2 text-secondary"></i>{{ preselected_car.fuel_type }}
+                        </div>
+                        <div class="col-6 text-muted">
+                            <i class="bi bi-gear-wide-connected me-2 text-secondary"></i>{{ preselected_car.transmission }}
+                        </div>
+                        <div class="col-6 text-muted">
+                            <i class="bi bi-people-fill me-2 text-secondary"></i>{{ preselected_car.seating_capacity }} Seats
+                        </div>
+                        <div class="col-6 text-muted">
+                            <i class="bi bi-calendar3 me-2 text-secondary"></i>{{ preselected_car.year }} Model
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden field support for Javascript calculator -->
+                    <input type="hidden" id="rent-rate" value="{{ preselected_car.rent_per_day }}">
+                {% else %}
+                    <!-- Dynamic car details selector placeholder -->
+                    <div id="car-detail-placeholder" class="text-center py-5 text-muted my-auto">
+                        <i class="bi bi-car-front display-4 mb-3 d-block text-secondary"></i>
+                        <p class="mb-0">Select an available vehicle from the list to preview specifications and calculate total pricing.</p>
+                    </div>
+
+                    <div id="dynamic-car-preview" class="d-none">
+                        <div id="dynamic-car-img-wrapper" style="height: 220px; background: #e2e8f0; overflow: hidden; border-radius: 12px; margin-bottom: 20px;">
+                            <img id="dynamic-car-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div id="dynamic-car-brand" class="text-uppercase font-monospace text-primary small mb-1"></div>
+                        <h3 id="dynamic-car-name" class="fw-bold text-dark mb-3"></h3>
+                        <div class="mb-4">
+                            <span class="fs-3 fw-bold text-dark">₹<span id="dynamic-car-rent">0</span></span>
+                            <span class="text-muted">/ day</span>
+                        </div>
+                        
+                        <div class="row g-3 mb-4" style="font-weight: 500;">
+                            <div class="col-6 text-muted">
+                                <i class="bi bi-fuel-pump-fill me-2 text-secondary"></i><span id="dynamic-car-fuel"></span>
+                            </div>
+                            <div class="col-6 text-muted">
+                                <i class="bi bi-gear-wide-connected me-2 text-secondary"></i><span id="dynamic-car-trans"></span>
+                            </div>
+                            <div class="col-6 text-muted">
+                                <i class="bi bi-people-fill me-2 text-secondary"></i><span id="dynamic-car-seats"></span> Seats
+                            </div>
+                            <div class="col-6 text-muted">
+                                <i class="bi bi-calendar3 me-2 text-secondary"></i><span id="dynamic-car-year"></span> Model
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Form Inputs & Price Breakdown -->
+        <div class="col-md-7">
+            <div class="card card-custom p-4">
+                <h4 class="fw-bold text-dark mb-4">Rental Period Setup</h4>
+
+                <form method="POST" id="booking-form" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger border-0 text-danger mb-4" style="background: rgba(220, 53, 69, 0.1);" role="alert">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if preselected_car %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">Selected Vehicle</label>
+                            <input type="text" class="form-control" value="{{ preselected_car.brand }} {{ preselected_car.name }}" disabled>
+                            <!-- Hidden select input to supply the form value -->
+                            <select name="car" class="d-none" id="id_car">
+                                <option value="{{ preselected_car.id }}" selected>{{ preselected_car.name }}</option>
+                            </select>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <label for="id_car" class="form-label fw-semibold text-muted">Select Vehicle</label>
+                            <select name="car" id="id_car" class="form-select form-control">
+                                <option value="" selected disabled>-- Choose a Vehicle --</option>
+                                {% for car in cars %}
+                                    <option value="{{ car.id }}" 
+                                            data-rent="{{ car.rent_per_day }}"
+                                            data-brand="{{ car.brand }}"
+                                            data-name="{{ car.name }}"
+                                            data-image="{% if car.image %}{{ car.image.url }}?v=3.0{% endif %}"
+                                            data-fuel="{{ car.fuel_type }}"
+                                            data-trans="{{ car.transmission }}"
+                                            data-seats="{{ car.seating_capacity }}"
+                                            data-year="{{ car.year }}">
+                                        {{ car.brand }} {{ car.name }} (₹{{ car.rent_per_day }}/day)
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.car.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.car.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_pickup_date" class="form-label fw-semibold text-muted">Pickup Date</label>
+                            {{ form.pickup_date }}
+                            {% if form.pickup_date.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.pickup_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_return_date" class="form-label fw-semibold text-muted">Return Date</label>
+                            {{ form.return_date }}
+                            {% if form.return_date.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.return_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Calculator summary card -->
+                    <div class="card p-3 my-4" style="background: rgba(79, 70, 229, 0.03); border: 1px dashed rgba(79, 70, 229, 0.2); border-radius: 12px;">
+                        <h6 class="fw-bold text-primary mb-3"><i class="bi bi-calculator me-2"></i>Fare Summary Projection</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Daily Rental Rate:</span>
+                            <span class="fw-bold text-dark">₹<span id="calc-rate">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Rental Duration:</span>
+                            <span class="fw-bold text-dark"><span id="calc-days">0</span> Day(s)</span>
+                        </div>
+                        <hr style="border-top: 1px dashed rgba(0,0,0,0.1); margin: 12px 0;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark fs-5">Estimated Total:</span>
+                            <span class="fw-extrabold text-primary fs-4">₹<span id="calc-total">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-custom-primary py-2.5">
+                            <i class="bi bi-calendar-plus-fill me-2"></i>Confirm Booking Order
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn btn-custom-secondary py-2.5">
+                            Cancel & Return
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Calculator Javascript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const pickupInput = document.getElementById('id_pickup_date');
+    const returnInput = document.getElementById('id_return_date');
+    const carSelect = document.getElementById('id_car');
+    
+    const calcRate = document.getElementById('calc-rate');
+    const calcDays = document.getElementById('calc-days');
+    const calcTotal = document.getElementById('calc-total');
+
+    // Dynamic selection selectors
+    const carPlaceholder = document.getElementById('car-detail-placeholder');
+    const carPreview = document.getElementById('dynamic-car-preview');
+    const carImg = document.getElementById('dynamic-car-img');
+    const carImgWrapper = document.getElementById('dynamic-car-img-wrapper');
+    const carBrand = document.getElementById('dynamic-car-brand');
+    const carName = document.getElementById('dynamic-car-name');
+    const carRent = document.getElementById('dynamic-car-rent');
+    const carFuel = document.getElementById('dynamic-car-fuel');
+    const carTrans = document.getElementById('dynamic-car-trans');
+    const carSeats = document.getElementById('dynamic-car-seats');
+    const carYear = document.getElementById('dynamic-car-year');
+
+    // Preselected checks
+    const preselectedRateInput = document.getElementById('rent-rate');
+    let activeRentRate = preselectedRateInput ? parseFloat(preselectedRateInput.value) : 0;
+
+    if (preselectedRateInput) {
+        calcRate.textContent = activeRentRate.toLocaleString('en-IN');
+    }
+
+    function calculateCost() {
+        const pickupDateVal = pickupInput.value;
+        const returnDateVal = returnInput.value;
+        
+        if (!pickupDateVal || !returnDateVal || activeRentRate <= 0) {
+            calcDays.textContent = '0';
+            calcTotal.textContent = '0.00';
+            return;
+        }
+
+        const date1 = new Date(pickupDateVal);
+        const date2 = new Date(returnDateVal);
+        
+        // Calculate difference in milliseconds
+        const timeDiff = date2.getTime() - date1.getTime();
+        
+        if (timeDiff < 0) {
+            calcDays.textContent = '0';
+            calcTotal.textContent = 'Invalid Date Range';
+            calcTotal.style.color = '#dc3545';
+            return;
+        }
+        
+        calcTotal.style.color = ''; // Reset color
+        
+        // Convert to days
+        let dayCount = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        if (dayCount === 0) dayCount = 1; // charge minimum 1 day
+
+        const totalCost = dayCount * activeRentRate;
+
+        calcDays.textContent = dayCount;
+        calcTotal.textContent = totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    }
+
+    // Dropdown change event
+    if (carSelect) {
+        carSelect.addEventListener('change', function() {
+            const selectedOpt = carSelect.options[carSelect.selectedIndex];
+            if (!selectedOpt || selectedOpt.disabled) return;
+
+            activeRentRate = parseFloat(selectedOpt.getAttribute('data-rent'));
+            calcRate.textContent = activeRentRate.toLocaleString('en-IN');
+
+            // Update Left Preview Card
+            if (carPlaceholder) carPlaceholder.classList.add('d-none');
+            carPreview.classList.remove('d-none');
+
+            carBrand.textContent = selectedOpt.getAttribute('data-brand');
+            carName.textContent = selectedOpt.getAttribute('data-name');
+            carRent.textContent = activeRentRate.toLocaleString('en-IN');
+            carFuel.textContent = selectedOpt.getAttribute('data-fuel');
+            carTrans.textContent = selectedOpt.getAttribute('data-trans');
+            carSeats.textContent = selectedOpt.getAttribute('data-seats');
+            carYear.textContent = selectedOpt.getAttribute('data-year');
+
+            const imgUrl = selectedOpt.getAttribute('data-image');
+            if (imgUrl) {
+                carImg.src = imgUrl;
+                carImg.alt = selectedOpt.getAttribute('data-name');
+                carImgWrapper.style.display = 'block';
+            } else {
+                carImgWrapper.style.display = 'none';
+            }
+
+            calculateCost();
+        });
+    }
+
+    pickupInput.addEventListener('change', calculateCost);
+    returnInput.addEventListener('change', calculateCost);
+});
+</script>
+{% endblock %}
